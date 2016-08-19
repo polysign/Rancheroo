@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.push File.expand_path("../../lib", __FILE__)
+
+Signal.trap("INT") do
+  abort
+end
+
+begin
+  require "drone"
+  require "drone/rancheroo"
+rescue LoadError
+  require "rubygems"
+  require "drone"
+  require "drone/rancheroo"
+end
+
+ARGV.delete "--"
+
+begin
+  Drone::Plugin.new(ARGV.last) do |payload|
+    Drone::Rancheroo.new(
+      payload
+    ).execute!
+  end
+rescue Interrupt
+  abort "Quitting..."
+end
